@@ -1,56 +1,82 @@
 from telegram.ext import *
+from FlightRadar24.api import FlightRadar24API
+print("Starting...")
+#api
+def getf():
+    fr_api = FlightRadar24API()
+    fl = ""
+    #{'tl_y': 50.68, 'tl_x': 20.94, 'br_y': 49.55, 'br_x': 23.09}
+    zone = {'tl_y': 50.68, 'tl_x': 20.94, 'br_y': 49.55, 'br_x': 23.09}
+    bounds = fr_api.get_bounds(zone)
+    flights = fr_api.get_flights(bounds = bounds)
 
-print('Starting...')
+    for f in flights:
+        try:
+            details = fr_api.get_flight_details(f.id)
+            f.set_flight_details(details)
+            if f.destination_airport_name == "Rzeszow Jasionka Airport":
+                #print("From:",f.origin_airport_country_name, ",status:", f.status_text)
+                fl += "From: " + f.origin_airport_country_name + " ,status: " + f.status_text + "\n"
+            #print(f.time_details["estimated"]["arrival"])
+            #date_time_obj = datetime.strptime(f.time_details["estimated"]["arrival"], '%d/%m/%y %H:%M:%S')
+        except:
+            pass
+    return fl
 
-# Lets us use the /start command
+#bot
 def start(update, context):
     update.message.reply_text('Witam')
 
-# Lets us use the /help command
 def help(update, context):
-    update.message.reply_text('Dostępne komendy')
+    update.message.reply_text('Dostępne komendy: start, help, auto, auto2, stop')
 
-def handle_response(text) -> str:
-    # Create your own response logic
-    if 'hello' in text:
-        return 'Hey there!'
+def callback_auto_message(context):
+    try:
+        context.bot.send_message(chat_id='-1001803015206', text=getf())
+    except:
+        pass
+        #context.bot.send_message(chat_id='1603466015', text="Nie ma samolotow chlopie")
 
-    if 'how are you' in text:
-        return 'I\'m good!'
+def start_auto_messaging(update, context):
+    chat_id = update.message.chat_id
+    context.job_queue.run_repeating(callback_auto_message, 900, context=chat_id, name=str(chat_id))
+    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach (15minut)')
+    try:
+        context.bot.send_message(chat_id=chat_id, text=getf())
+    except:
+        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu")
+        pass
 
-    return 'I don\'t understand'
 
+def start_auto_messaging2(update, context):
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach (25minut)')
+    context.job_queue.run_repeating(callback_auto_message, 1500, context=chat_id, name=str(chat_id))
+    try:
+        context.bot.send_message(chat_id=chat_id, text=getf())
+    except:
+        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu")
+        pass
 
-def handle_message(update, context):
-    message_type = update.message.chat.type
-    text = str(update.message.text).lower()
-    response = ''
+def stop_notify(update, context):
+    chat_id = update.message.chat_id
+    try:
+        job = context.job_queue.get_jobs_by_name(str(chat_id))
+        job[0].schedule_removal()
+        context.bot.send_message(chat_id=chat_id, text='Wyłączono powiadomienia')
+    except:
+        context.bot.send_message(chat_id=chat_id, text='Brak powiadomień')
 
-    # React to group messages only if users mention the bot directly
-    if message_type == 'group':
-        # Replace with your bot username
-        if '@driver33bot' in text:
-            new_text = text.replace('@driver33bot', '').strip()
-            response = handle_response(new_text)
-    else:
-        response = handle_response(text)
-
-    # Reply normal if the message is in private
-    update.message.reply_text(response)
-
-# Run the program
 if __name__ == '__main__':
     updater = Updater('5656552566:AAG7JWW_zp7jB29b9-xqY7o0MwlVmLTYH40', use_context=True)
     dp = updater.dispatcher
 
-    # Commands
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help))
+    dp.add_handler(CommandHandler('auto', start_auto_messaging))
+    dp.add_handler(CommandHandler('auto2', start_auto_messaging2))
+    dp.add_handler(CommandHandler('stop', stop_notify))
 
-    # Messages
-    dp.add_handler(MessageHandler(Filters.text, handle_message))
-
-    # Run the bot
     updater.start_polling(1.0)
     updater.idle()
 
