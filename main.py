@@ -5,8 +5,9 @@ print("Starting...")
 def getf():
     fr_api = FlightRadar24API()
     fl = ""
-    #{'tl_y': 50.68, 'tl_x': 20.94, 'br_y': 49.55, 'br_x': 23.09}
-    zone = {'tl_y': 50.68, 'tl_x': 20.94, 'br_y': 49.55, 'br_x': 23.09}
+    # {'tl_y': 50.68, 'tl_x': 20.94, 'br_y': 49.55, 'br_x': 23.09}
+    # {'tl_y': 51.22, 'tl_x': 20.43, 'br_y': 49.55, 'br_x': 23.11}
+    zone = {'tl_y': 51.22, 'tl_x': 20.43, 'br_y': 49.55, 'br_x': 23.11}
     bounds = fr_api.get_bounds(zone)
     flights = fr_api.get_flights(bounds = bounds)
 
@@ -39,23 +40,22 @@ def callback_auto_message(context):
 
 def start_auto_messaging(update, context):
     chat_id = update.message.chat_id
-    context.job_queue.run_repeating(callback_auto_message, 900, context=chat_id, name=str(chat_id))
-    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach (15minut)')
+    context.job_queue.run_repeating(callback_auto_message, 420, context=chat_id, name=str(chat_id))
+    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach (7min)')
     try:
         context.bot.send_message(chat_id=chat_id, text=getf())
     except:
-        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu")
         pass
 
 
 def start_auto_messaging2(update, context):
     chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach (25minut)')
+    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach* (7min)')
     context.job_queue.run_repeating(callback_auto_message, 1500, context=chat_id, name=str(chat_id))
     try:
         context.bot.send_message(chat_id=chat_id, text=getf())
     except:
-        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu")
+        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu-zapierdalaj do rzeszowa")
         pass
 
 def stop_notify(update, context):
