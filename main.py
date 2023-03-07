@@ -19,7 +19,7 @@ def getf():
             f.set_flight_details(details)
             if f.destination_airport_name == "Rzeszow Jasionka Airport":
                 #print("From:",f.origin_airport_country_name, ",status:", f.status_text)
-                fl += "From: " + f.origin_airport_country_name + " ,status: " + f.status_text + "\n"
+                fl += "From: " + f.origin_airport_country_name + ", status: " + f.status_text + "\n"
             #print(f.time_details["estimated"]["arrival"])
             #date_time_obj = datetime.strptime(f.time_details["estimated"]["arrival"], '%d/%m/%y %H:%M:%S')
         except:

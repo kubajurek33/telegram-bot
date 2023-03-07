@@ -1,2 +1,2 @@
-chatid="-1001803015206"
-updater="5656552566:AAG7JWW_zp7jB29b9-xqY7o0MwlVmLTYH40"
+chatid=""
+updater=""
