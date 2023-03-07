@@ -1,7 +1,9 @@
 from telegram.ext import *
 from FlightRadar24.api import FlightRadar24API
-print("Starting...")
-#api
+import credentials
+
+print("Bot is online...")
+
 def getf():
     fr_api = FlightRadar24API()
     fl = ""
@@ -33,29 +35,30 @@ def help(update, context):
 
 def callback_auto_message(context):
     try:
-        context.bot.send_message(chat_id='-1001803015206', text=getf())
+        context.bot.send_message(chat_id=credentials.chatid, text=getf())
     except:
         pass
-        #context.bot.send_message(chat_id='1603466015', text="Nie ma samolotow chlopie")
 
 def start_auto_messaging(update, context):
     chat_id = update.message.chat_id
-    context.job_queue.run_repeating(callback_auto_message, 420, context=chat_id, name=str(chat_id))
-    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach (7min)')
+    time = 420
+    context.job_queue.run_repeating(callback_auto_message, time, context=chat_id, name=str(chat_id))
+    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach')
     try:
         context.bot.send_message(chat_id=chat_id, text=getf())
+        time = 210
     except:
         pass
-
+        time = 420
 
 def start_auto_messaging2(update, context):
     chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach* (7min)')
+    context.bot.send_message(chat_id=chat_id, text='Włączono powiadomienia o lądujących samolotach*')
     context.job_queue.run_repeating(callback_auto_message, 1500, context=chat_id, name=str(chat_id))
     try:
         context.bot.send_message(chat_id=chat_id, text=getf())
     except:
-        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu-zapierdalaj do rzeszowa")
+        context.bot.send_message(chat_id=chat_id, text="Brak samolotów w pobliżu")
         pass
 
 def stop_notify(update, context):
@@ -68,7 +71,7 @@ def stop_notify(update, context):
         context.bot.send_message(chat_id=chat_id, text='Brak powiadomień')
 
 if __name__ == '__main__':
-    updater = Updater('5656552566:AAG7JWW_zp7jB29b9-xqY7o0MwlVmLTYH40', use_context=True)
+    updater = Updater(credentials.updater, use_context=True)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start))
