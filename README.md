@@ -5,4 +5,4 @@
 To run this project you need to install packages: <br>
 pip install -r requirements.txt
 
-Then you need to update credentials.py file with two ids: chatid, updater
+Then you need to update <b>credentials.py</b> file with two ids: chatid, updater
